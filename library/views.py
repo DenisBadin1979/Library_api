@@ -1,11 +1,12 @@
 from django.utils import timezone
-from rest_framework import viewsets, status, generics
+from rest_framework import viewsets, status, generics, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
+from users.models import User
 from .models import Author, Genre, Book, BorrowRecord
 from .serializers import (
     AuthorSerializer, GenreSerializer, BookSerializer,
@@ -26,13 +27,14 @@ class GenreViewSet(viewsets.ModelViewSet):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {
         'title': ['icontains'],
         'authors': ['exact'],
         'genres': ['exact'],
-        'publication_year': ['exact', 'gte', 'lte'],
+
     }
+    search_fields = ["title", "authors__name", "genres__name", "isbn"]
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -95,3 +97,5 @@ class BorrowRecordViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(borrow)
         return Response(serializer.data)
+
+

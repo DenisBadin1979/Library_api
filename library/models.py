@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from users.models import User
 
 class Author(models.Model):
     name = models.CharField(max_length=200, verbose_name="Наименование автора")
@@ -20,6 +20,7 @@ class Book(models.Model):
     authors = models.ManyToManyField(Author, related_name='books', verbose_name="Автор")
     genres = models.ManyToManyField(Genre, related_name='books', verbose_name="Жанр")
     isbn = models.CharField(max_length=13, unique=True, blank=True, null=True, verbose_name="Международный стандартный книжный номер (ISBN)")
+    available_copies = models.IntegerField(default=1, verbose_name="Доступно экземпляров")
 
 
     def __str__(self):
