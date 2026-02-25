@@ -1,45 +1,36 @@
-# Этап 1: Сборщик
-FROM python:3.13-slim AS builder
+# Используем официальный slim-образ Python 3.12
+FROM python:3.12-slim
 
+# Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
 
 # Устанавливаем зависимости системы
-RUN apt-get update && apt-get install -y \\\\
-    gcc \\\\
-    libpq-dev \\\\
-    && apt-get clean \\\\
+RUN apt-get update \
+    && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Копируем файл зависимостей в контейнер
 COPY requirements.txt ./
-RUN pip install -r requirements.txt
 
+# Устанавливаем зависимости Python
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем весь проект
+# Копируем исходный код приложения в контейнер
 COPY . .
 
-# Этап 2: Финальный образ
-FROM python:3.13-slim
+# Определяем переменные окружения
 
-WORKDIR /app
+ENV CELERY_BROKER_URL="redis://redis:6379/0"
+ENV CELERY_BACKEND="redis://redis:6379/0"
 
-# Установка системных зависимостей (только необходимые)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
 
-# Копируем виртуальное окружение из builder
-COPY --from=builder /app/.venv .venv
 
-# Копируем код приложения
-COPY --from=builder /app /app
 
-# Активируем виртуальное окружение
-ENV PATH="/app/.venv/bin:$PATH"
-
+# Пробрасываем порт, который будет использовать Django
 EXPOSE 8000
 
 # Команда для запуска приложения
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-# Устанавливает переменную окружения, которая гарантирует, что вывод из python будет отправлен прямо в терминал без предварительной буферизации
-ENV PYTHONUNBUFFERED 1
-
