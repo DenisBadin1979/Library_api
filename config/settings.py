@@ -120,6 +120,34 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Library API",
     "DESCRIPTION": "API for managing library books, authors, and borrowings",
     "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SECURITY": [{"BearerAuth": []}],
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+    },
+    "EXTENSIONS_INFO": {
+        "x-logo": {
+            "url": "...",
+        },
+    },
+    "TAGS": [
+        {"name": "Авторы", "description": "Управление авторами"},
+        {"name": "Жанры", "description": "Управление жанрами"},
+        {"name": "Книги", "description": "Просмотр и редактирование книг"},
+        {"name": "Выдачи", "description": "Взятие и возврат книг"},
+    ],
+    "COMPONENTS": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
+    "SECURITY": [{"BearerAuth": []}],
 }
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
